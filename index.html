@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BAUCER BAYARAN • Koperasi SMKFBK</title>
+<style>
+:root{font-family:Inter,Arial,sans-serif;color:#172033;background:#eef2f7}
+*{box-sizing:border-box} body{margin:0}
+header{background:#0f172a;color:#fff;padding:14px 18px;position:sticky;top:0;z-index:5}
+.bar{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:18px;margin:0}.actions{display:flex;gap:8px;flex-wrap:wrap}
+button{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer}
+.add{background:#16a34a;color:#fff}.save{background:#2563eb;color:#fff}.print{background:#7c3aed;color:#fff}.danger{background:#dc2626;color:#fff}.ghost{background:#fff;color:#172033}
+main{max-width:1180px;margin:20px auto;padding:0 12px}.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 12px #0f172a12;margin-bottom:16px}
+.voucher{background:#fff;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;margin-bottom:18px}
+.vtop{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0}
+.form{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+.section{grid-column:1/-1;background:#f1f5f9;border-radius:7px;padding:9px;font-weight:800}
+label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:5px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:7px;font:inherit}
+textarea{min-height:70px;resize:vertical}.preview{border-top:2px solid #111;padding:18px}.paper{max-width:900px;margin:auto;border:1px solid #111;padding:26px;background:#fff}
+.letterhead{display:flex;align-items:center;justify-content:center;gap:18px;text-align:center}.logo{width:76px;height:76px;object-fit:contain}.school{font-weight:800;font-size:19px}.addr{font-size:12px;line-height:1.4}
+.title{text-align:center;font-size:20px;font-weight:800;margin:18px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:13px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #111;padding:9px}th{background:#f3f4f6}.right{text-align:right}.total td{font-weight:800}
+.sign{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:55px;text-align:center;font-size:12px}.line{border-top:1px solid #111;width:85%;margin:35px auto 5px}
+.toast{position:fixed;right:18px;bottom:18px;background:#111827;color:#fff;padding:12px 16px;border-radius:8px;display:none;z-index:20}
+@media(max-width:700px){.form,.meta,.sign{grid-template-columns:1fr}.full{grid-column:auto}.bar{align-items:flex-start;flex-direction:column}}
+@media print{header,.screen{display:none!important}body{background:#fff}.card,.voucher{box-shadow:none;border:0}.paper{border:0;padding:8mm}.voucher:not(.print-target){display:none!important}.form,.vtop{display:none!important}}
+</style>
+</head>
+<body>
+<header class="screen">
+<div class="bar">
+<h1>BAUCER BAYARAN — KOPERASI SMK FELCRA BUKIT KEPONG</h1>
+<div class="actions">
+<button class="add" onclick="addVoucher()">＋ TAMBAH BAUCER</button>
+<button class="save" onclick="saveAll()">💾 SIMPAN</button>
+<button class="print" onclick="printOne()">🖨 CETAK / PDF</button>
+</div>
+</div>
+</header>
+
+<main>
+<div class="card screen">
+<b>V3 — CLOUDFLARE + GOOGLE SHEET</b>
+<div style="font-size:12px;color:#64748b;margin-top:6px">
+No. Baucer sengaja dikosongkan untuk diisi sendiri. Setiap baucer boleh ditambah, disimpan dan dipadam.
+</div>
+</div>
+<div id="list"></div>
+</main>
+<div id="toast" class="toast"></div>
+
+<script>
+const SUBJECTS = [
+"Sejarah","Bahasa Melayu","Bahasa Inggeris","Matematik","Matematik Tambahan",
+"Kimia","Fizik","Biologi","Sains","Pendidikan Islam","Pendidikan Moral",
+"Geografi","Pendidikan Seni Visual","Pendidikan Jasmani dan Pendidikan Kesihatan (PJPK)",
+"Reka Bentuk dan Teknologi (RBT)","Asas Sains Komputer (ASK)","Sains Komputer",
+"Prinsip Perakaunan","Ekonomi","Perniagaan","Tasawwur Islam","Bahasa Arab",
+"Bahasa Cina","Bahasa Tamil","Kesusasteraan Melayu Komunikatif","Kesusasteraan Inggeris",
+"Sains Rumah Tangga","Pertanian","Reka Cipta","Grafik Komunikasi Teknikal",
+"Pendidikan Muzik","Pendidikan Khas","Subjek lain"
+];
+
+const LOGO = "logo.svg";
+let vouchers=[];
+
+function uid(){return "v_"+Date.now()+"_"+Math.random().toString(36).slice(2,8)}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",2200)}
+function fresh(){return {id:uid(),voucherNo:"",date:new Date().toISOString().slice(0,10),recipientType:"Pembekal",payee:"",phone:"",address:"",invoiceNo:"",description:"",total:"",paymentMethod:"Cash",bank:"",transactionRef:"",preparedBy:"",verifiedBy:"",approvedBy:"",status:"DRAF"}}
+
+function setv(id,key,value){
+ const v=vouchers.find(x=>x.id===id); if(!v)return;
+ v[key]=value; renderPreview(id);
+}
+
+function addVoucher(){vouchers.push(fresh());render();window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
+
+async function api(path="",options={}){
+ const r=await fetch("/api"+path,options);
+ const t=await r.text();
+ try{return JSON.parse(t)}catch(e){throw new Error(t||("HTTP "+r.status))}
+}
+
+async function load(){
+ try{
+  const r=await api("?action=getVouchers");
+  if(!r.ok)throw new Error(r.message||"API gagal");
+  vouchers=r.data&&r.data.length?r.data:[fresh()];
+  render();
+ }catch(e){
+  vouchers=[fresh()];render();
+  toast("Belum dapat sambung database: "+e.message);
+ }
+}
+
+async function saveAll(){
+ try{
+  for(const v of vouchers){
+   const r=await api("",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"saveVoucher",data:v})});
+   if(!r.ok)throw new Error(r.message||"Gagal simpan");
+   if(r.data?.id)v.id=r.data.id;
+  }
+  render();toast("Semua baucer berjaya disimpan.");
+ }catch(e){alert("Ralat simpan: "+e.message)}
+}
+
+async function delVoucher(id){
+ if(!confirm("Padam baucer ini?"))return;
+ try{
+  const r=await api("",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"deleteVoucher",id})});
+  if(!r.ok)throw new Error(r.message||"Gagal delete");
+  vouchers=vouchers.filter(v=>v.id!==id);
+  if(!vouchers.length)vouchers=[fresh()];
+  render();toast("Baucer dipadam.");
+ }catch(e){alert("Ralat delete: "+e.message)}
+}
+
+function money(v){return Number(v||0).toLocaleString("ms-MY",{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function terbilang(n){
+ n=Math.round(Number(n||0)*100)/100; let r=Math.floor(n),s=Math.round((n-r)*100);
+ const o=["","Satu","Dua","Tiga","Empat","Lima","Enam","Tujuh","Lapan","Sembilan","Sepuluh","Sebelas"];
+ function f(x){
+  if(x<12)return o[x]; if(x<20)return o[x-10]+" Belas"; if(x<100)return o[Math.floor(x/10)]+" Puluh"+(x%10?" "+o[x%10]:"");
+  if(x<200)return "Seratus"+(x%100?" "+f(x%100):""); if(x<1000)return o[Math.floor(x/100)]+" Ratus"+(x%100?" "+f(x%100):"");
+  if(x<2000)return "Seribu"+(x%1000?" "+f(x%1000):""); if(x<1000000)return f(Math.floor(x/1000))+" Ribu"+(x%1000?" "+f(x%1000):"");
+  if(x<1000000000)return f(Math.floor(x/1000000))+" Juta"+(x%1000000?" "+f(x%1000000):"");
+  return String(x);
+ }
+ return f(r)+" Ringgit"+(s?" Dan "+f(s)+" Sen":"")+" Sahaja.";
+}
+
+function options(v){
+ const base=["Pembekal","Sumbangan","Vendor"];
+ const all=base.concat(SUBJECTS.map(s=>"Guru Panitia: "+s));
+ return all.map(x=>`<option ${v.recipientType===x?"selected":""}>${esc(x)}</option>`).join("");
+}
+
+function render(){
+ document.getElementById("list").innerHTML=vouchers.map((v,i)=>`
+ <section class="voucher" id="v-${v.id}">
+  <div class="vtop screen">
+   <b>Baucer #${i+1}</b>
+   <button class="danger" onclick="delVoucher('${v.id}')">🗑 DELETE</button>
+  </div>
+  <div class="form screen">
+   <div class="section">1. MAKLUMAT BAUCER</div>
+   <div><label>NO. BAUCER — ISI SENDIRI</label><input value="${esc(v.voucherNo)}" placeholder="Contoh: 001" onchange="setv('${v.id}','voucherNo',this.value)"></div>
+   <div><label>TARIKH</label><input type="date" value="${esc(v.date)}" onchange="setv('${v.id}','date',this.value)"></div>
+   <div><label>KATEGORI / PANITIA</label><select onchange="setv('${v.id}','recipientType',this.value)">${options(v)}</select></div>
+   <div><label>NAMA / BAYAR KEPADA</label><input value="${esc(v.payee)}" onchange="setv('${v.id}','payee',this.value)"></div>
+   <div><label>NO. TELEFON / CONTACT</label><input value="${esc(v.phone)}" onchange="setv('${v.id}','phone',this.value)"></div>
+   <div><label>NO. INVOIS / RUJUKAN</label><input value="${esc(v.invoiceNo)}" onchange="setv('${v.id}','invoiceNo',this.value)"></div>
+   <div class="full"><label>ALAMAT</label><textarea onchange="setv('${v.id}','address',this.value)">${esc(v.address)}</textarea></div>
+   <div class="full"><label>KETERANGAN BAYARAN</label><textarea onchange="setv('${v.id}','description',this.value)">${esc(v.description)}</textarea></div>
+   <div><label>JUMLAH (RM)</label><input type="number" step="0.01" value="${esc(v.total)}" onchange="setv('${v.id}','total',this.value)"></div>
+   <div class="section">2. CARA BAYARAN</div>
+   <div><label>CARA BAYARAN</label><select onchange="setv('${v.id}','paymentMethod',this.value)"><option ${v.paymentMethod==="Cash"?"selected":""}>Cash</option><option ${v.paymentMethod==="Online"?"selected":""}>Online</option></select></div>
+   <div><label>BANK / PLATFORM</label><input value="${esc(v.bank)}" onchange="setv('${v.id}','bank',this.value)"></div>
+   <div><label>NO. RUJUKAN TRANSAKSI</label><input value="${esc(v.transactionRef)}" onchange="setv('${v.id}','transactionRef',this.value)"></div>
+   <div class="section">3. PENGESAHAN</div>
+   <div><label>DISEDIAKAN OLEH</label><input value="${esc(v.preparedBy)}" onchange="setv('${v.id}','preparedBy',this.value)"></div>
+   <div><label>DISAHKAN OLEH</label><input value="${esc(v.verifiedBy)}" onchange="setv('${v.id}','verifiedBy',this.value)"></div>
+   <div><label>DILULUSKAN OLEH</label><input value="${esc(v.approvedBy)}" onchange="setv('${v.id}','approvedBy',this.value)"></div>
+  </div>
+  <div class="preview" id="p-${v.id}">${paper(v)}</div>
+ </section>`).join("");
+}
+
+function renderPreview(id){const v=vouchers.find(x=>x.id===id),p=document.getElementById("p-"+id);if(v&&p)p.innerHTML=paper(v)}
+
+function paper(v){
+ return `<div class="paper">
+ <div class="letterhead"><img class="logo" src="${LOGO}" alt="Logo"><div><div class="school">KOPERASI SMK FELCRA BUKIT KEPONG</div><div class="addr">Peti Surat 4, 85300 Labis, Johor Darul Takzim<br>Tel / Fax: 07-9237767</div></div></div>
+ <div class="title">BAUCER BAYARAN</div>
+ <div class="meta">
+ <div><b>Bayar Kepada:</b> ${esc(v.payee)}</div><div><b>No. Baucer:</b> ${esc(v.voucherNo)}</div>
+ <div><b>Kategori:</b> ${esc(v.recipientType)}</div><div><b>Tarikh:</b> ${esc(v.date)}</div>
+ <div><b>Contact:</b> ${esc(v.phone)}</div><div><b>Cara Bayaran:</b> ${esc(v.paymentMethod)}</div>
+ </div>
+ <table><tr><th style="width:8%">Bil</th><th>Keterangan</th><th style="width:20%">RM</th></tr>
+ <tr style="height:180px"><td>1</td><td>${esc(v.description)}${v.invoiceNo?"<br><br>No. Invois/Rujukan: "+esc(v.invoiceNo):""}${v.paymentMethod==="Online"&&v.transactionRef?"<br><br>Rujukan Transaksi: "+esc(v.transactionRef):""}</td><td class="right">${money(v.total)}</td></tr>
+ <tr class="total"><td colspan="2">JUMLAH</td><td class="right">${money(v.total)}</td></tr></table>
+ <p><b>Dalam Perkataan:</b> ${terbilang(v.total)}</p>
+ <div class="sign">
+ <div><div class="line"></div><b>${esc(v.preparedBy)}</b><br>Bendahari Koperasi<br>Tarikh: ${esc(v.date)}</div>
+ <div><div class="line"></div><b>${esc(v.verifiedBy)}</b><br>Disahkan Oleh<br>Tarikh:</div>
+ <div><div class="line"></div><b>${esc(v.approvedBy)}</b><br>Diluluskan Oleh<br>Tarikh:</div>
+ </div></div>`;
+}
+
+function printOne(){
+ if(!vouchers.length)return;
+ const n=prompt("Masukkan nombor baucer untuk cetak. Contoh: 1","1");
+ const i=Number(n)-1;if(!Number.isInteger(i)||!vouchers[i])return;
+ document.querySelectorAll(".voucher").forEach(x=>x.classList.remove("print-target"));
+ document.getElementById("v-"+vouchers[i].id).classList.add("print-target");
+ window.print();
+}
+
+load();
+</script>
+</body>
+</html>

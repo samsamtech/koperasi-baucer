@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<rect width="200" height="200" rx="28" fill="#0f172a"/>
+<circle cx="100" cy="82" r="48" fill="white"/>
+<path d="M68 96h64v18H68z" fill="#0f172a"/>
+<path d="M78 68h44v18H78z" fill="#0f172a"/>
+<text x="100" y="160" text-anchor="middle" font-family="Arial" font-size="24" font-weight="700" fill="white">SMKFBK</text>
+</svg>
