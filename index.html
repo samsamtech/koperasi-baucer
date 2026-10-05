@@ -273,4 +273,15 @@ function paper(v){
  </div>`;
 }
 
- 
+ function addVoucher(){
+  alert("ADD VOUCHER BERFUNGSI!");
+  vouchers.push(fresh());
+  render();
+
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+window.addVoucher = addVoucher;
