@@ -77,8 +77,14 @@ function setv(id,key,value){
  v[key]=value; renderPreview(id);
 }
 
-function addVoucher(){vouchers.push(fresh());render();window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
-
+function addVoucher(){
+  vouchers.push(fresh());
+  render();
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth"
+  });
+}
 async function api(path="",options={}){
  const r=await fetch("/api"+path,options);
  const t=await r.text();
