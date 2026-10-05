@@ -175,57 +175,93 @@ function renderPreview(id){const v=vouchers.find(x=>x.id===id),p=document.getEle
 
 function paper(v){
  return `<div class="paper">
- <div class="letterhead"><img class="logo" src="${LOGO}" alt="Logo"><div><div class="school">KOPERASI SMK FELCRA BUKIT KEPONG</div><div class="addr">Peti Surat 4, 85300 Labis, Johor Darul Takzim<br>Tel / Fax: 07-9237767</div></div></div>
- <div class="title">BAUCER BAYARAN</div>
- <div class="meta">
- <div><b>Bayar Kepada:</b> ${esc(v.payee)}</div><div><b>No. Baucer:</b> ${esc(v.voucherNo)}</div>
- <div><b>Kategori:</b> ${esc(v.recipientType)}</div><div><b>Tarikh:</b> ${esc(v.date)}</div>
- <div><b>Contact:</b> ${esc(v.phone)}</div><div><b>Cara Bayaran:</b> ${esc(v.paymentMethod)}</div>
+
+ <div class="letterhead">
+   <img class="logo" src="${LOGO}" alt="Logo">
+   <div>
+     <div class="school">
+       KOPERASI SMK FELCRA BUKIT KEPONG
+     </div>
+     <div class="addr">
+       Peti Surat 4, 85300 Labis, Johor Darul Takzim<br>
+       Tel / Fax: 07-9237767
+     </div>
+   </div>
  </div>
- <table><tr><th style="width:8%">Bil</th><th>Keterangan</th><th style="width:20%">RM</th></tr>
- <tr style="height:180px"><td>1</td><td>${esc(v.description)}${v.invoiceNo?"<br><br>No. Invois/Rujukan: "+esc(v.invoiceNo):""}${v.paymentMethod==="Online"&&v.transactionRef?"<br><br>Rujukan Transaksi: "+esc(v.transactionRef):""}</td><td class="right">${money(v.total)}</td></tr>
- <tr class="total"><td colspan="2">JUMLAH</td><td class="right">${money(v.total)}</td></tr></table>
- <p><b>Dalam Perkataan:</b> ${terbilang(v.total)}</p>
+
+ <div class="title">BAUCER BAYARAN</div>
+
+ <div class="meta">
+   <div><b>Bayar Kepada:</b> ${esc(v.payee)}</div>
+   <div><b>No. Baucer:</b> ${esc(v.voucherNo)}</div>
+
+   <div><b>Kategori:</b> ${esc(v.recipientType)}</div>
+   <div><b>Tarikh:</b> ${esc(v.date)}</div>
+
+   <div><b>Contact:</b> ${esc(v.phone)}</div>
+   <div><b>Cara Bayaran:</b> ${esc(v.paymentMethod)}</div>
+ </div>
+
+ <table>
+   <tr>
+     <th style="width:8%">Bil</th>
+     <th>Keterangan</th>
+     <th style="width:20%">RM</th>
+   </tr>
+
+   <tr style="height:180px">
+     <td>1</td>
+     <td>
+       ${esc(v.description)}
+       ${
+         v.invoiceNo
+         ? "<br><br>No. Invois/Rujukan: " + esc(v.invoiceNo)
+         : ""
+       }
+       ${
+         v.paymentMethod === "Online" && v.transactionRef
+         ? "<br><br>Rujukan Transaksi: " + esc(v.transactionRef)
+         : ""
+       }
+     </td>
+     <td class="right">${money(v.total)}</td>
+   </tr>
+
+   <tr class="total">
+     <td colspan="2">JUMLAH</td>
+     <td class="right">${money(v.total)}</td>
+   </tr>
+ </table>
+
+ <p>
+   <b>Dalam Perkataan:</b>
+   ${terbilang(v.total)}
+ </p>
+
  <div class="sign">
-<div class="sign">
 
-  <div>
-    <div class="sign">
+   <div>
+     <div class="line"></div>
+     <b>MOHD HAFIEZ BIN TASLIM</b><br>
+     Bendahari Koperasi<br>
+     Tarikh: ${esc(v.date)}
+   </div>
 
-  <div>
-    <div class="line"></div>
-    <b>MOHD HAFIEZ BIN TASLIM</b><br>
-    Bendahari Koperasi<br>
-    Tarikh: ${esc(v.date)}
-  </div>
+   <div>
+     <div class="line"></div>
+     <b>LIZAWATI BINTI ABDUL KADIR</b><br>
+     Setiausaha Koperasi<br>
+     Tarikh: ${esc(v.date)}
+   </div>
 
-  <div>
-    <div class="line"></div>
-    <b>LIZAWATI BINTI ABDUL KADIR</b><br>
-    Setiausaha Koperasi<br>
-    Tarikh: ${esc(v.date)}
-  </div>
+   <div>
+     <div class="line"></div>
+     <b>HJ ZAHID BIN ABDUL WAHAB</b><br>
+     Disahkan Oleh<br>
+     Tarikh: ${esc(v.date)}
+   </div>
 
-  <div>
-    <div class="line"></div>
-    <b>HJ ZAHID BIN ABDUL WAHAB</b><br>
-    Disahkan Oleh<br>
-    Tarikh: ${esc(v.date)}
-  </div>
+ </div>
 
-</div>
+ </div>`;
 }
-
-function printOne(){
- if(!vouchers.length)return;
- const n=prompt("Masukkan nombor baucer untuk cetak. Contoh: 1","1");
- const i=Number(n)-1;if(!Number.isInteger(i)||!vouchers[i])return;
- document.querySelectorAll(".voucher").forEach(x=>x.classList.remove("print-target"));
- document.getElementById("v-"+vouchers[i].id).classList.add("print-target");
- window.print();
-}
-
-load();
-</script>
-</body>
-</html>
