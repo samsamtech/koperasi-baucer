@@ -1,6 +1,5 @@
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzFW8f0-Ag6LsLed4sSh9eirOCrfmETg9Ytlj_g9KNXB978Kb_pYapdU4gUxQESBy_YA/exec';
-
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKRs4Itat3m6oMNtFF0Ws91uawx_gl_bP1ew0TfQwXqTAS9a_TzNYmK7JF6oAqE9XC/exec';
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
