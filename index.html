@@ -51,7 +51,18 @@ No. Baucer sengaja dikosongkan untuk diisi sendiri. Setiap baucer boleh ditambah
 <div id="list"></div>
 </main>
 <div id="toast" class="toast"></div>
+function addVoucher(){
+  alert("ADD VOUCHER BERFUNGSI!");
+  vouchers.push(fresh());
+  render();
 
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+window.addVoucher = addVoucher;
 <script>
 const SUBJECTS = [
 "Sejarah","Bahasa Melayu","Bahasa Inggeris","Matematik","Matematik Tambahan",
@@ -273,15 +284,3 @@ function paper(v){
  </div>`;
 }
 
- function addVoucher(){
-  alert("ADD VOUCHER BERFUNGSI!");
-  vouchers.push(fresh());
-  render();
-
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-window.addVoucher = addVoucher;
