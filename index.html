@@ -187,9 +187,36 @@ function paper(v){
  <tr class="total"><td colspan="2">JUMLAH</td><td class="right">${money(v.total)}</td></tr></table>
  <p><b>Dalam Perkataan:</b> ${terbilang(v.total)}</p>
  <div class="sign">
- <div><div class="line"></div><b>${esc(v.preparedBy)}</b><br>Bendahari Koperasi<br>Tarikh: ${esc(v.date)}</div>
- <div><div class="line"></div><b>${esc(v.verifiedBy)}</b><br>Disahkan Oleh<br>Tarikh:</div>
- <div><div class="line"></div><b>${esc(v.approvedBy)}</b><br>Diluluskan Oleh<br>Tarikh:</div>
+<div class="sign">
+
+  <div>
+    <div class="line"></div>
+    <b>MOHD HAFIEZ BIN TASLIM</b>
+    <br>
+    Bendahari Koperasi
+    <br>
+    Tarikh: ${esc(v.date)}
+  </div>
+
+  <div>
+    <div class="line"></div>
+    <b>${esc(v.verifiedBy || '')}</b>
+    <br>
+    Disahkan Oleh
+    <br>
+    Tarikh: ${esc(v.date)}
+  </div>
+
+  <div>
+    <div class="line"></div>
+    <b>${esc(v.approvedBy || '')}</b>
+    <br>
+    Diluluskan Oleh
+    <br>
+    Tarikh: ${esc(v.date)}
+  </div>
+
+</div>
  </div></div>`;
 }
 
